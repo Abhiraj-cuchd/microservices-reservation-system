@@ -1,12 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { IsEmail, IsStrongPassword } from "class-validator";
+import { IsEmail, IsStrongPassword } from 'class-validator';
 
 export class CreateUserDto {
+  @IsEmail()
+  emailId: string;
 
-    @IsEmail()
-    emailId: string;
-
-    @IsStrongPassword()
-    password: string;
-    email: any;
+  @IsStrongPassword()
+  password: string;
+  email: any;
 }
