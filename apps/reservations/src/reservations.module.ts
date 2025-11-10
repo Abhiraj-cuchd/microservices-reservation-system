@@ -8,8 +8,10 @@ import {
   ReservationSchema,
 } from './entities/reservation.entity';
 import { LoggerModule } from '@app/shared';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AUTH_SERVICE } from '@app/shared/constants/services';
 
 @Module({
   imports: [
@@ -22,9 +24,22 @@ import * as Joi from 'joi';
       isGlobal: true,
       validationSchema: Joi.object({
         MONGODB_URI: Joi.string().required(),
-        PORT: Joi.number().default(5001),
+        PORT: Joi.number().default(3001),
       }),
     }),
+    ClientsModule.registerAsync([
+      {
+        name: AUTH_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get<string>('AUTH_SERVICE_HOST')!,
+            port: configService.get<number>('AUTH_SERVICE_PORT')!,
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
   ],
   controllers: [ReservationsController],
   providers: [ReservationsService, ReservationRepository],
